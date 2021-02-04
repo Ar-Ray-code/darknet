@@ -314,8 +314,15 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             fflush(stderr);
         }
         printf("\n %d: %f, %f avg loss, %f rate, %lf seconds, %d images, %f hours left\n", iteration, loss, avg_loss, get_current_rate(net), (what_time_is_it_now() - time), iteration*imgs, avg_time);
+	//Write log -------------------------------------------------
+        FILE *fp;
+        char log_name[100] = {};
+        sprintf(log_name, "%s/%s", backup_directory, "train_log.csv");
+        fp=fopen(log_name, "a+b");
         fflush(stdout);
-
+	fprintf(fp,"%ld,%f,%f\n",iteration, loss, avg_loss);
+        fclose(fp);
+	//-------------------------------------------------------------
         int draw_precision = 0;
         if (calc_map && (iteration >= next_map_calc || iteration == net.max_batches)) {
             if (l.random) {
@@ -382,8 +389,8 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
 
         //if (i % 1000 == 0 || (i < 1000 && i % 100 == 0)) {
         //if (i % 100 == 0) {
-        if ((iteration >= (iter_save + 10000) || iteration % 10000 == 0) ||
-            (iteration >= (iter_save + 1000) || iteration % 1000 == 0) && net.max_batches < 10000)
+        if ((iteration >= (iter_save + 2000) || iteration % 2000 == 0) ||
+            (iteration >= (iter_save + 1000) || iteration % 1000 == 0) && net.max_batches < 2000)
         {
             iter_save = iteration;
 #ifdef GPU
